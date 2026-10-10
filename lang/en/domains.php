@@ -15,11 +15,10 @@ return [
     'fields' => [
         'label_help' => 'Unicode labels are converted to Punycode automatically.',
         'registrant' => 'Registrant',
-        'registrant_handle' => 'Registrant handle',
         'admin_contacts' => 'Admin contacts',
         'tech_contacts' => 'Tech contacts',
         'billing_contacts' => 'Billing contacts',
-        'handles_help' => 'Handles, comma separated',
+        'contact_search' => 'Search by handle or name...',
         'registered' => 'Registered',
         'expires' => 'Expires',
         'auth_code' => 'Auth code',

@@ -10,11 +10,13 @@ use App\Models\Tld;
 use App\Support\Idn;
 use Flux\Flux;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Renderless;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -30,9 +32,12 @@ new #[Title('domains.singular')] class extends Component {
     public string $auth_code = '';
     public string $registered_at = '';
     public string $expires_at = '';
-    public string $admin_contacts = '';
-    public string $tech_contacts = '';
-    public string $billing_contacts = '';
+    /** @var list<string> */
+    public array $admin_contacts = [];
+    /** @var list<string> */
+    public array $tech_contacts = [];
+    /** @var list<string> */
+    public array $billing_contacts = [];
     public string $nameservers = '';
     public string $ds_records = '';
 
@@ -81,6 +86,45 @@ new #[Title('domains.singular')] class extends Component {
         return Registrar::query()->orderBy('name')->get(['id', 'name', 'handle']);
     }
 
+    /**
+     * Names of the currently selected contacts, keyed by handle.
+     *
+     * @return array<string, string>
+     */
+    #[Computed]
+    public function contactLabels(): array
+    {
+        $handles = array_filter([$this->registrant, ...$this->admin_contacts, ...$this->tech_contacts, ...$this->billing_contacts]);
+
+        return Contact::query()->whereIn('handle', $handles)->pluck('name', 'handle')->all();
+    }
+
+    /**
+     * Contacts matching the query by handle, name, organization or email.
+     *
+     * @param  list<string>  $exclude
+     * @return list<array{handle: string, name: string, organization: string|null}>
+     */
+    #[Renderless]
+    public function searchContacts(string $query = '', array $exclude = []): array
+    {
+        $query = trim($query);
+
+        return Contact::query()
+            ->visibleTo(Auth::user())
+            ->when($query !== '', fn ($q) => $q->where(fn ($q) => $q
+                ->where('handle', 'like', "%{$query}%")
+                ->orWhere('name', 'like', "%{$query}%")
+                ->orWhere('organization', 'like', "%{$query}%")
+                ->orWhere('email', 'like', "%{$query}%")))
+            ->whereNotIn('handle', array_filter($exclude, 'is_string'))
+            ->orderBy('name')
+            ->limit(10)
+            ->get(['handle', 'name', 'organization'])
+            ->map(fn (Contact $c) => ['handle' => $c->handle, 'name' => $c->name, 'organization' => $c->organization])
+            ->all();
+    }
+
     public function save(): void
     {
         $this->authorize($this->domain ? 'update' : 'create', $this->domain ?? Domain::class);
@@ -88,7 +132,13 @@ new #[Title('domains.singular')] class extends Component {
         $this->validate([
             'label' => ['required', 'string', 'max:63'],
             'tld_id' => ['required', 'exists:tlds,id'],
-            'registrant' => ['required', 'exists:contacts,handle'],
+            'registrant' => ['required', 'string', 'exists:contacts,handle'],
+            'admin_contacts' => ['array'],
+            'admin_contacts.*' => ['string'],
+            'tech_contacts' => ['array'],
+            'tech_contacts.*' => ['string'],
+            'billing_contacts' => ['array'],
+            'billing_contacts.*' => ['string'],
             'registrar_id' => ['nullable', 'exists:registrars,id'],
             'statuses' => ['array'],
             'statuses.*' => [Rule::enum(DomainStatus::class)],
@@ -154,9 +204,12 @@ new #[Title('domains.singular')] class extends Component {
         $this->redirectRoute('domains.show', $domain, navigate: true);
     }
 
-    private function handlesFor(Domain $domain, ContactRole $role): string
+    /**
+     * @return list<string>
+     */
+    private function handlesFor(Domain $domain, ContactRole $role): array
     {
-        return $domain->contacts->where('pivot.role', $role->value)->pluck('handle')->join(', ');
+        return $domain->contacts->where('pivot.role', $role->value)->pluck('handle')->values()->all();
     }
 
     /**
@@ -164,7 +217,7 @@ new #[Title('domains.singular')] class extends Component {
      */
     private function parseHandles(string $field): array
     {
-        $handles = collect(preg_split('/[\s,]+/', $this->{$field}, -1, PREG_SPLIT_NO_EMPTY))->unique()->values();
+        $handles = collect($this->{$field})->filter()->unique()->values();
         $ids = Contact::query()->whereIn('handle', $handles)->pluck('id', 'handle');
 
         if ($missing = $handles->diff($ids->keys())->join(', ')) {
@@ -234,7 +287,7 @@ new #[Title('domains.singular')] class extends Component {
         </flux:input.group>
 
         <div class="grid gap-4 md:grid-cols-2">
-            <flux:input wire:model="registrant" :label="__('domains.fields.registrant_handle')" required />
+            <x-contact-picker model="registrant" :label="__('domains.fields.registrant')" :labels="$this->contactLabels" />
             <flux:select wire:model="registrar_id" :label="__('registrars.singular')">
                 <flux:select.option value="">{{ __('domains.managed_by_registry') }}</flux:select.option>
                 @foreach ($this->registrars as $registrar)
@@ -243,10 +296,10 @@ new #[Title('domains.singular')] class extends Component {
             </flux:select>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-3">
-            <flux:input wire:model="admin_contacts" :label="__('domains.fields.admin_contacts')" :placeholder="__('domains.fields.handles_help')" />
-            <flux:input wire:model="tech_contacts" :label="__('domains.fields.tech_contacts')" :placeholder="__('domains.fields.handles_help')" />
-            <flux:input wire:model="billing_contacts" :label="__('domains.fields.billing_contacts')" :placeholder="__('domains.fields.handles_help')" />
+        <div class="grid gap-4">
+            <x-contact-picker model="admin_contacts" multiple :label="__('domains.fields.admin_contacts')" :labels="$this->contactLabels" />
+            <x-contact-picker model="tech_contacts" multiple :label="__('domains.fields.tech_contacts')" :labels="$this->contactLabels" />
+            <x-contact-picker model="billing_contacts" multiple :label="__('domains.fields.billing_contacts')" :labels="$this->contactLabels" />
         </div>
 
         <div class="grid gap-4 md:grid-cols-3">

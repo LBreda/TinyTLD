@@ -159,6 +159,49 @@ class RegistryAccessTest extends TestCase
         $this->assertSame(12345, $domain->dsRecords->first()->key_tag);
     }
 
+    public function test_domain_form_searches_contacts_by_handle_or_name(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+
+        $mario = Contact::factory()->create(['handle' => 'C-MARIO', 'name' => 'Mario Rossi', 'organization' => 'Rossi Srl']);
+        $luigi = Contact::factory()->create(['handle' => 'C-LUIGI', 'name' => 'Luigi Verdi', 'organization' => null]);
+
+        $form = Livewire::test('pages::domains.form')->instance();
+
+        $this->assertSame(
+            [['handle' => 'C-MARIO', 'name' => 'Mario Rossi', 'organization' => 'Rossi Srl']],
+            $form->searchContacts('rossi'),
+        );
+        $this->assertSame(['C-LUIGI'], array_column($form->searchContacts('luigi'), 'handle'));
+        $this->assertSame([], $form->searchContacts('mario', [$mario->handle]));
+        $this->assertContains($luigi->handle, array_column($form->searchContacts('C-'), 'handle'));
+    }
+
+    public function test_admin_can_assign_domain_contacts_by_role(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+
+        [$admin, $tech] = Contact::factory()->count(2)->create();
+
+        Livewire::test('pages::domains.form', ['domain' => $this->acmeDomain])
+            ->assertSet('admin_contacts', [])
+            ->set('admin_contacts', [$admin->handle])
+            ->set('tech_contacts', [$tech->handle, $admin->handle])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        Livewire::test('pages::domains.form', ['domain' => $this->acmeDomain->fresh()])
+            ->assertSet('registrant', $this->acmeDomain->registrant->handle)
+            ->assertSet('admin_contacts', [$admin->handle])
+            ->assertSet('billing_contacts', [])
+            ->assertSee($tech->name);
+
+        Livewire::test('pages::domains.form', ['domain' => $this->acmeDomain->fresh()])
+            ->set('billing_contacts', ['C-MISSING'])
+            ->call('save')
+            ->assertHasErrors('billing_contacts');
+    }
+
     public function test_admin_can_assign_operator_to_registrar(): void
     {
         $this->actingAs(User::factory()->admin()->create());
