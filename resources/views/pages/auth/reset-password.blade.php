@@ -1,6 +1,6 @@
-<x-layouts::auth :title="__('Reset password')">
+<x-layouts::auth :title="__('auth.reset_password.title')">
     <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Reset password')" :description="__('Please enter your new password below')" />
+        <x-auth-header :title="__('auth.reset_password.title')" :description="__('auth.reset_password.description')" />
 
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
@@ -14,7 +14,7 @@
             <flux:input
                 name="email"
                 value="{{ request('email') }}"
-                :label="__('Email')"
+                :label="__('common.fields.email')"
                 type="email"
                 required
                 autocomplete="email"
@@ -23,11 +23,11 @@
             <!-- Password -->
             <flux:input
                 name="password"
-                :label="__('Password')"
+                :label="__('common.fields.password')"
                 type="password"
                 required
                 autocomplete="new-password"
-                :placeholder="__('Password')"
+                :placeholder="__('common.fields.password')"
                 passwordrules="{{ \Illuminate\Validation\Rules\Password::defaults()->toPasswordRulesString() }}"
                 viewable
             />
@@ -35,18 +35,18 @@
             <!-- Confirm Password -->
             <flux:input
                 name="password_confirmation"
-                :label="__('Confirm password')"
+                :label="__('common.fields.confirm_password')"
                 type="password"
                 required
                 autocomplete="new-password"
-                :placeholder="__('Confirm password')"
+                :placeholder="__('common.fields.confirm_password')"
                 passwordrules="{{ \Illuminate\Validation\Rules\Password::defaults()->toPasswordRulesString() }}"
                 viewable
             />
 
             <div class="flex items-center justify-end">
                 <flux:button type="submit" variant="primary" class="w-full" data-test="reset-password-button">
-                    {{ __('Reset password') }}
+                    {{ __('auth.reset_password.title') }}
                 </flux:button>
             </div>
         </form>

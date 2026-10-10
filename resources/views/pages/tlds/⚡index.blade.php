@@ -6,7 +6,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('TLDs')] class extends Component {
+new #[Title('tlds.plural')] class extends Component {
     #[Computed]
     public function tlds(): Collection
     {
@@ -16,18 +16,18 @@ new #[Title('TLDs')] class extends Component {
 
 <section class="w-full space-y-6">
     <div class="flex items-center justify-between gap-4">
-        <flux:heading size="xl" level="1">{{ __('TLDs') }}</flux:heading>
+        <flux:heading size="xl" level="1">{{ __('tlds.plural') }}</flux:heading>
 
         <flux:button variant="primary" icon="plus" :href="route('tlds.create')" wire:navigate>
-            {{ __('New TLD') }}
+            {{ __('tlds.new') }}
         </flux:button>
     </div>
 
     <flux:table>
         <flux:table.columns>
-            <flux:table.column>{{ __('Name') }}</flux:table.column>
-            <flux:table.column>{{ __('SOA serial') }}</flux:table.column>
-            <flux:table.column>{{ __('Domains') }}</flux:table.column>
+            <flux:table.column>{{ __('common.fields.name') }}</flux:table.column>
+            <flux:table.column>{{ __('tlds.fields.soa_serial') }}</flux:table.column>
+            <flux:table.column>{{ __('domains.plural') }}</flux:table.column>
             <flux:table.column></flux:table.column>
         </flux:table.columns>
 
@@ -40,12 +40,12 @@ new #[Title('TLDs')] class extends Component {
                     <flux:table.cell>{{ $tld->serial }}</flux:table.cell>
                     <flux:table.cell>{{ $tld->domains_count }}</flux:table.cell>
                     <flux:table.cell>
-                        <flux:button size="sm" icon="arrow-down-tray" :href="route('tlds.zone', $tld)">{{ __('Zone file') }}</flux:button>
+                        <flux:button size="sm" icon="arrow-down-tray" :href="route('tlds.zone', $tld)">{{ __('tlds.zone_file') }}</flux:button>
                     </flux:table.cell>
                 </flux:table.row>
             @empty
                 <flux:table.row>
-                    <flux:table.cell colspan="4">{{ __('No TLDs configured.') }}</flux:table.cell>
+                    <flux:table.cell colspan="4">{{ __('tlds.empty') }}</flux:table.cell>
                 </flux:table.row>
             @endforelse
         </flux:table.rows>

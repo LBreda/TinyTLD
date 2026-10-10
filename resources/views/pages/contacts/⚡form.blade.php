@@ -8,7 +8,7 @@ use Illuminate\Validation\Rule;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Contact')] class extends Component {
+new #[Title('contacts.singular')] class extends Component {
     public ?Contact $contact = null;
 
     public string $handle = '';
@@ -73,53 +73,53 @@ new #[Title('Contact')] class extends Component {
         $contact = $this->contact ?? new Contact;
         $contact->fill($validated)->save();
 
-        Flux::toast(variant: 'success', text: __('Contact saved.'));
+        Flux::toast(variant: 'success', text: __('contacts.saved'));
 
         $this->redirectRoute('contacts.show', $contact, navigate: true);
     }
 }; ?>
 
 <section class="w-full max-w-3xl space-y-6">
-    <flux:heading size="xl" level="1">{{ $contact ? __('Edit :handle', ['handle' => $contact->handle]) : __('New contact') }}</flux:heading>
+    <flux:heading size="xl" level="1">{{ $contact ? __('contacts.edit', ['handle' => $contact->handle]) : __('contacts.new') }}</flux:heading>
 
     <form wire:submit="save" class="space-y-6">
         <div class="grid gap-4 md:grid-cols-2">
-            <flux:input wire:model="handle" :label="__('Handle')" required />
-            <flux:select wire:model.live="kind" :label="__('Type')">
-                <flux:select.option value="individual">{{ __('Individual') }}</flux:select.option>
-                <flux:select.option value="org">{{ __('Organization') }}</flux:select.option>
+            <flux:input wire:model="handle" :label="__('common.fields.handle')" required />
+            <flux:select wire:model.live="kind" :label="__('common.fields.type')">
+                <flux:select.option value="individual">{{ __('contacts.individual') }}</flux:select.option>
+                <flux:select.option value="org">{{ __('common.fields.organization') }}</flux:select.option>
             </flux:select>
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">
-            <flux:input wire:model="name" :label="__('Name')" required />
-            <flux:input wire:model="organization" :label="__('Organization')" />
+            <flux:input wire:model="name" :label="__('common.fields.name')" required />
+            <flux:input wire:model="organization" :label="__('common.fields.organization')" />
         </div>
 
-        <flux:input wire:model="street" :label="__('Street')" />
+        <flux:input wire:model="street" :label="__('common.fields.street')" />
 
         <div class="grid gap-4 md:grid-cols-4">
-            <flux:input wire:model="postal_code" :label="__('Postal code')" />
-            <flux:input wire:model="city" :label="__('City')" />
-            <flux:input wire:model="state_province" :label="__('Province / State')" />
-            <flux:input wire:model="country_code" :label="__('Country (ISO)')" maxlength="2" required />
+            <flux:input wire:model="postal_code" :label="__('common.fields.postal_code')" />
+            <flux:input wire:model="city" :label="__('common.fields.city')" />
+            <flux:input wire:model="state_province" :label="__('common.fields.state_province')" />
+            <flux:input wire:model="country_code" :label="__('common.fields.country_code')" maxlength="2" required />
         </div>
 
         <div class="grid gap-4 md:grid-cols-3">
-            <flux:input wire:model="email" type="email" :label="__('Email')" required />
-            <flux:input wire:model="phone" :label="__('Phone')" placeholder="+39.0612345678" />
-            <flux:input wire:model="fax" :label="__('Fax')" />
+            <flux:input wire:model="email" type="email" :label="__('common.fields.email')" required />
+            <flux:input wire:model="phone" :label="__('common.fields.phone')" placeholder="+39.0612345678" />
+            <flux:input wire:model="fax" :label="__('common.fields.fax')" />
         </div>
 
-        <flux:checkbox.group wire:model="disclose" :label="__('Publish via RDAP')" :description="__('Unchecked fields are redacted in public RDAP responses.')" class="grid gap-2 md:grid-cols-3">
+        <flux:checkbox.group wire:model="disclose" :label="__('contacts.disclose.label')" :description="__('contacts.disclose.help')" class="grid gap-2 md:grid-cols-3">
             @foreach (App\Models\Contact::DISCLOSABLE as $field)
-                <flux:checkbox :value="$field" :label="__(ucfirst($field))" />
+                <flux:checkbox :value="$field" :label="__('common.fields.'.$field)" />
             @endforeach
         </flux:checkbox.group>
 
         <div class="flex gap-2">
-            <flux:button variant="primary" type="submit">{{ __('Save') }}</flux:button>
-            <flux:button :href="$contact ? route('contacts.show', $contact) : route('contacts.index')" wire:navigate>{{ __('Cancel') }}</flux:button>
+            <flux:button variant="primary" type="submit">{{ __('common.actions.save') }}</flux:button>
+            <flux:button :href="$contact ? route('contacts.show', $contact) : route('contacts.index')" wire:navigate>{{ __('common.actions.cancel') }}</flux:button>
         </div>
     </form>
 </section>

@@ -9,7 +9,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Nameservers')] class extends Component {
+new #[Title('nameservers.plural')] class extends Component {
     use WithPagination;
 
     #[Url]
@@ -42,20 +42,20 @@ new #[Title('Nameservers')] class extends Component {
 
 <section class="w-full space-y-6">
     <div class="flex items-center justify-between gap-4">
-        <flux:heading size="xl" level="1">{{ __('Nameservers') }}</flux:heading>
+        <flux:heading size="xl" level="1">{{ __('nameservers.plural') }}</flux:heading>
 
         <flux:button variant="primary" icon="plus" :href="route('nameservers.create')" wire:navigate>
-            {{ __('New nameserver') }}
+            {{ __('nameservers.new') }}
         </flux:button>
     </div>
 
-    <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass" :placeholder="__('Search nameservers...')" />
+    <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass" :placeholder="__('nameservers.search')" />
 
     <flux:table :paginate="$this->nameservers">
         <flux:table.columns>
-            <flux:table.column>{{ __('Host') }}</flux:table.column>
-            <flux:table.column>{{ __('Addresses') }}</flux:table.column>
-            <flux:table.column>{{ __('Domains') }}</flux:table.column>
+            <flux:table.column>{{ __('nameservers.fields.host') }}</flux:table.column>
+            <flux:table.column>{{ __('nameservers.fields.addresses') }}</flux:table.column>
+            <flux:table.column>{{ __('domains.plural') }}</flux:table.column>
         </flux:table.columns>
 
         <flux:table.rows>
@@ -69,7 +69,7 @@ new #[Title('Nameservers')] class extends Component {
                 </flux:table.row>
             @empty
                 <flux:table.row>
-                    <flux:table.cell colspan="3">{{ __('No nameservers found.') }}</flux:table.cell>
+                    <flux:table.cell colspan="3">{{ __('nameservers.empty') }}</flux:table.cell>
                 </flux:table.row>
             @endforelse
         </flux:table.rows>

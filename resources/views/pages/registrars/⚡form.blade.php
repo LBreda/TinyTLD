@@ -8,7 +8,7 @@ use Illuminate\Validation\Rule;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Registrar')] class extends Component {
+new #[Title('registrars.singular')] class extends Component {
     public ?Registrar $registrar = null;
 
     public string $handle = '';
@@ -89,7 +89,7 @@ new #[Title('Registrar')] class extends Component {
         $registrar = $this->registrar ?? new Registrar;
         $registrar->fill($validated)->save();
 
-        Flux::toast(variant: 'success', text: __('Registrar saved.'));
+        Flux::toast(variant: 'success', text: __('registrars.saved'));
 
         if (! $this->registrar) {
             $this->redirectRoute('registrars.edit', $registrar, navigate: true);
@@ -102,7 +102,7 @@ new #[Title('Registrar')] class extends Component {
 
         $this->registrar->delete();
 
-        Flux::toast(variant: 'success', text: __('Registrar deleted. Its domains are now managed by the registry.'));
+        Flux::toast(variant: 'success', text: __('registrars.deleted'));
 
         $this->redirectRoute('registrars.index', navigate: true);
     }
@@ -110,13 +110,13 @@ new #[Title('Registrar')] class extends Component {
 
 <section class="w-full max-w-3xl space-y-6">
     <div class="flex items-center justify-between gap-4">
-        <flux:heading size="xl" level="1">{{ $registrar ? $registrar->name : __('New registrar') }}</flux:heading>
+        <flux:heading size="xl" level="1">{{ $registrar ? $registrar->name : __('registrars.new') }}</flux:heading>
 
         @if ($registrar)
             <div class="flex gap-2">
-                <flux:button icon="code-bracket" :href="route('rdap.entity', $registrar->handle)" target="_blank">RDAP</flux:button>
+                <flux:button icon="code-bracket" :href="route('rdap.entity', $registrar->handle)" target="_blank">{{ __('common.rdap') }}</flux:button>
                 @can('delete', $registrar)
-                    <flux:button variant="danger" icon="trash" wire:click="delete" wire:confirm="{{ __('Delete this registrar?') }}">{{ __('Delete') }}</flux:button>
+                    <flux:button variant="danger" icon="trash" wire:click="delete" wire:confirm="{{ __('registrars.delete_confirm') }}">{{ __('common.actions.delete') }}</flux:button>
                 @endcan
             </div>
         @endif
@@ -124,9 +124,9 @@ new #[Title('Registrar')] class extends Component {
 
     <form wire:submit="save" class="space-y-6">
         <div class="grid gap-4 md:grid-cols-3">
-            <flux:input wire:model="handle" :label="__('Handle')" :disabled="! $this->isAdmin()" required />
-            <flux:input wire:model="iana_id" type="number" :label="__('IANA ID')" :disabled="! $this->isAdmin()" />
-            <flux:select wire:model="status" :label="__('Status')" :disabled="! $this->isAdmin()">
+            <flux:input wire:model="handle" :label="__('common.fields.handle')" :disabled="! $this->isAdmin()" required />
+            <flux:input wire:model="iana_id" type="number" :label="__('registrars.fields.iana_id')" :disabled="! $this->isAdmin()" />
+            <flux:select wire:model="status" :label="__('common.fields.status')" :disabled="! $this->isAdmin()">
                 @foreach (App\Enums\RegistrarStatus::cases() as $case)
                     <flux:select.option :value="$case->value">{{ $case->value }}</flux:select.option>
                 @endforeach
@@ -134,38 +134,38 @@ new #[Title('Registrar')] class extends Component {
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">
-            <flux:input wire:model="name" :label="__('Name')" required />
-            <flux:input wire:model="organization" :label="__('Legal name')" />
+            <flux:input wire:model="name" :label="__('common.fields.name')" required />
+            <flux:input wire:model="organization" :label="__('registrars.fields.legal_name')" />
         </div>
 
         <div class="grid gap-4 md:grid-cols-3">
-            <flux:input wire:model="email" type="email" :label="__('Email')" required />
-            <flux:input wire:model="phone" :label="__('Phone')" placeholder="+39.0612345678" />
-            <flux:input wire:model="url" type="url" :label="__('Website')" />
+            <flux:input wire:model="email" type="email" :label="__('common.fields.email')" required />
+            <flux:input wire:model="phone" :label="__('common.fields.phone')" placeholder="+39.0612345678" />
+            <flux:input wire:model="url" type="url" :label="__('registrars.fields.website')" />
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">
-            <flux:input wire:model="abuse_email" type="email" :label="__('Abuse email')" />
-            <flux:input wire:model="abuse_phone" :label="__('Abuse phone')" />
+            <flux:input wire:model="abuse_email" type="email" :label="__('registrars.fields.abuse_email')" />
+            <flux:input wire:model="abuse_phone" :label="__('registrars.fields.abuse_phone')" />
         </div>
 
-        <flux:input wire:model="street" :label="__('Street')" />
+        <flux:input wire:model="street" :label="__('common.fields.street')" />
 
         <div class="grid gap-4 md:grid-cols-4">
-            <flux:input wire:model="postal_code" :label="__('Postal code')" />
-            <flux:input wire:model="city" :label="__('City')" />
-            <flux:input wire:model="state_province" :label="__('Province / State')" />
-            <flux:input wire:model="country_code" :label="__('Country (ISO)')" maxlength="2" />
+            <flux:input wire:model="postal_code" :label="__('common.fields.postal_code')" />
+            <flux:input wire:model="city" :label="__('common.fields.city')" />
+            <flux:input wire:model="state_province" :label="__('common.fields.state_province')" />
+            <flux:input wire:model="country_code" :label="__('common.fields.country_code')" maxlength="2" />
         </div>
 
         <div class="flex gap-2">
-            <flux:button variant="primary" type="submit">{{ __('Save') }}</flux:button>
+            <flux:button variant="primary" type="submit">{{ __('common.actions.save') }}</flux:button>
         </div>
     </form>
 
     @if ($registrar)
         <flux:card class="space-y-2">
-            <flux:heading>{{ __('Operators') }}</flux:heading>
+            <flux:heading>{{ __('registrars.operators') }}</flux:heading>
             @forelse ($registrar->users()->orderBy('name')->get() as $operator)
                 <flux:text>
                     @can('admin')
@@ -176,7 +176,7 @@ new #[Title('Registrar')] class extends Component {
                     — {{ $operator->email }}
                 </flux:text>
             @empty
-                <flux:text>{{ __('No operators yet.') }}</flux:text>
+                <flux:text>{{ __('registrars.no_operators') }}</flux:text>
             @endforelse
         </flux:card>
     @endif

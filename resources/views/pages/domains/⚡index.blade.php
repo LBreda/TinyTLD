@@ -10,7 +10,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Domains')] class extends Component {
+new #[Title('domains.plural')] class extends Component {
     use WithPagination;
 
     #[Url]
@@ -48,24 +48,24 @@ new #[Title('Domains')] class extends Component {
 
 <section class="w-full space-y-6">
     <div class="flex items-center justify-between gap-4">
-        <flux:heading size="xl" level="1">{{ __('Domains') }}</flux:heading>
+        <flux:heading size="xl" level="1">{{ __('domains.plural') }}</flux:heading>
 
         @can('create', App\Models\Domain::class)
             <flux:button variant="primary" icon="plus" :href="route('domains.create')" wire:navigate>
-                {{ __('New domain') }}
+                {{ __('domains.new') }}
             </flux:button>
         @endcan
     </div>
 
-    <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass" :placeholder="__('Search domains...')" />
+    <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass" :placeholder="__('domains.search')" />
 
     <flux:table :paginate="$this->domains">
         <flux:table.columns>
-            <flux:table.column>{{ __('Name') }}</flux:table.column>
-            <flux:table.column>{{ __('Registrant') }}</flux:table.column>
-            <flux:table.column>{{ __('Registrar') }}</flux:table.column>
-            <flux:table.column>{{ __('Status') }}</flux:table.column>
-            <flux:table.column>{{ __('Expires') }}</flux:table.column>
+            <flux:table.column>{{ __('common.fields.name') }}</flux:table.column>
+            <flux:table.column>{{ __('domains.fields.registrant') }}</flux:table.column>
+            <flux:table.column>{{ __('registrars.singular') }}</flux:table.column>
+            <flux:table.column>{{ __('common.fields.status') }}</flux:table.column>
+            <flux:table.column>{{ __('domains.fields.expires') }}</flux:table.column>
         </flux:table.columns>
 
         <flux:table.rows>
@@ -90,7 +90,7 @@ new #[Title('Domains')] class extends Component {
                 </flux:table.row>
             @empty
                 <flux:table.row>
-                    <flux:table.cell colspan="5">{{ __('No domains found.') }}</flux:table.cell>
+                    <flux:table.cell colspan="5">{{ __('domains.empty') }}</flux:table.cell>
                 </flux:table.row>
             @endforelse
         </flux:table.rows>

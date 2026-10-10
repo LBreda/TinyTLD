@@ -18,7 +18,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Domain')] class extends Component {
+new #[Title('domains.singular')] class extends Component {
     public ?Domain $domain = null;
 
     public string $label = '';
@@ -101,13 +101,13 @@ new #[Title('Domain')] class extends Component {
         $fqdn = trim($this->label, '. ').'.'.$tld->name;
 
         if (! Idn::isValidHostName($fqdn) || str_contains(Idn::toAscii($this->label), '.')) {
-            throw ValidationException::withMessages(['label' => __('Invalid domain label.')]);
+            throw ValidationException::withMessages(['label' => __('domains.errors.invalid_label')]);
         }
 
         $name = Idn::toAscii($fqdn);
 
         if (Domain::query()->where('name', $name)->when($this->domain, fn ($q) => $q->whereKeyNot($this->domain->id))->exists()) {
-            throw ValidationException::withMessages(['label' => __('This domain is already registered.')]);
+            throw ValidationException::withMessages(['label' => __('domains.errors.already_registered')]);
         }
 
         $roles = [
@@ -149,7 +149,7 @@ new #[Title('Domain')] class extends Component {
             return $domain;
         });
 
-        Flux::toast(variant: 'success', text: __('Domain saved.'));
+        Flux::toast(variant: 'success', text: __('domains.saved'));
 
         $this->redirectRoute('domains.show', $domain, navigate: true);
     }
@@ -168,7 +168,7 @@ new #[Title('Domain')] class extends Component {
         $ids = Contact::query()->whereIn('handle', $handles)->pluck('id', 'handle');
 
         if ($missing = $handles->diff($ids->keys())->join(', ')) {
-            throw ValidationException::withMessages([$field => __('Unknown contacts: :handles', ['handles' => $missing])]);
+            throw ValidationException::withMessages([$field => __('domains.errors.unknown_contacts', ['handles' => $missing])]);
         }
 
         return $ids->values()->all();
@@ -183,7 +183,7 @@ new #[Title('Domain')] class extends Component {
 
         foreach (preg_split('/[\s,]+/', $this->nameservers, -1, PREG_SPLIT_NO_EMPTY) as $host) {
             if (! Idn::isValidHostName($host) || ! str_contains($host, '.')) {
-                throw ValidationException::withMessages(['nameservers' => __('Invalid host name: :host', ['host' => $host])]);
+                throw ValidationException::withMessages(['nameservers' => __('common.errors.invalid_host', ['host' => $host])]);
             }
 
             $hosts[] = Idn::toAscii($host);
@@ -205,7 +205,7 @@ new #[Title('Domain')] class extends Component {
             if (count($parts) !== 4 || ! ctype_digit($parts[0]) || ! ctype_digit($parts[1]) || ! ctype_digit($parts[2])
                 || (int) $parts[0] > 65535 || (int) $parts[1] > 255 || (int) $parts[2] > 255
                 || ! preg_match('/^[0-9a-fA-F\s]+$/', $parts[3])) {
-                throw ValidationException::withMessages(['ds_records' => __('Invalid DS record: :line', ['line' => $line])]);
+                throw ValidationException::withMessages(['ds_records' => __('domains.errors.invalid_ds_record', ['line' => $line])]);
             }
 
             $records[] = [
@@ -221,11 +221,11 @@ new #[Title('Domain')] class extends Component {
 }; ?>
 
 <section class="w-full max-w-3xl space-y-6">
-    <flux:heading size="xl" level="1">{{ $domain ? __('Edit :name', ['name' => $domain->displayName()]) : __('New domain') }}</flux:heading>
+    <flux:heading size="xl" level="1">{{ $domain ? __('domains.edit', ['name' => $domain->displayName()]) : __('domains.new') }}</flux:heading>
 
     <form wire:submit="save" class="space-y-6">
-        <flux:input.group :label="__('Domain')" :description="__('Unicode labels are converted to Punycode automatically.')">
-            <flux:input wire:model="label" :placeholder="__('Name')" required />
+        <flux:input.group :label="__('domains.singular')" :description="__('domains.fields.label_help')">
+            <flux:input wire:model="label" :placeholder="__('common.fields.name')" required />
             <flux:select wire:model="tld_id" class="w-auto shrink-0 min-w-36">
                 @foreach ($this->tlds as $tld)
                     <flux:select.option :value="$tld->id">.{{ $tld->displayName() }}</flux:select.option>
@@ -234,9 +234,9 @@ new #[Title('Domain')] class extends Component {
         </flux:input.group>
 
         <div class="grid gap-4 md:grid-cols-2">
-            <flux:input wire:model="registrant" :label="__('Registrant handle')" required />
-            <flux:select wire:model="registrar_id" :label="__('Registrar')">
-                <flux:select.option value="">{{ __('None (managed by the registry)') }}</flux:select.option>
+            <flux:input wire:model="registrant" :label="__('domains.fields.registrant_handle')" required />
+            <flux:select wire:model="registrar_id" :label="__('registrars.singular')">
+                <flux:select.option value="">{{ __('domains.managed_by_registry') }}</flux:select.option>
                 @foreach ($this->registrars as $registrar)
                     <flux:select.option :value="$registrar->id">{{ $registrar->name }} ({{ $registrar->handle }})</flux:select.option>
                 @endforeach
@@ -244,30 +244,30 @@ new #[Title('Domain')] class extends Component {
         </div>
 
         <div class="grid gap-4 md:grid-cols-3">
-            <flux:input wire:model="admin_contacts" :label="__('Admin contacts')" :placeholder="__('Handles, comma separated')" />
-            <flux:input wire:model="tech_contacts" :label="__('Tech contacts')" :placeholder="__('Handles, comma separated')" />
-            <flux:input wire:model="billing_contacts" :label="__('Billing contacts')" :placeholder="__('Handles, comma separated')" />
+            <flux:input wire:model="admin_contacts" :label="__('domains.fields.admin_contacts')" :placeholder="__('domains.fields.handles_help')" />
+            <flux:input wire:model="tech_contacts" :label="__('domains.fields.tech_contacts')" :placeholder="__('domains.fields.handles_help')" />
+            <flux:input wire:model="billing_contacts" :label="__('domains.fields.billing_contacts')" :placeholder="__('domains.fields.handles_help')" />
         </div>
 
         <div class="grid gap-4 md:grid-cols-3">
-            <flux:input wire:model="registered_at" type="date" :label="__('Registered')" />
-            <flux:input wire:model="expires_at" type="date" :label="__('Expires')" />
-            <flux:input wire:model="auth_code" :label="__('Auth code')" />
+            <flux:input wire:model="registered_at" type="date" :label="__('domains.fields.registered')" />
+            <flux:input wire:model="expires_at" type="date" :label="__('domains.fields.expires')" />
+            <flux:input wire:model="auth_code" :label="__('domains.fields.auth_code')" />
         </div>
 
-        <flux:checkbox.group wire:model="statuses" :label="__('Statuses')" class="grid gap-2 md:grid-cols-3">
+        <flux:checkbox.group wire:model="statuses" :label="__('domains.fields.statuses')" class="grid gap-2 md:grid-cols-3">
             @foreach (App\Enums\DomainStatus::cases() as $status)
                 <flux:checkbox :value="$status->value" :label="$status->value" />
             @endforeach
         </flux:checkbox.group>
 
-        <flux:textarea wire:model="nameservers" :label="__('Nameservers')" :description="__('One host name per line. Unknown hosts are created.')" rows="3" />
+        <flux:textarea wire:model="nameservers" :label="__('nameservers.plural')" :description="__('domains.fields.nameservers_help')" rows="3" />
 
-        <flux:textarea wire:model="ds_records" :label="__('DS records')" :description="__('One per line: key tag, algorithm, digest type, digest.')" rows="3" class="font-mono" />
+        <flux:textarea wire:model="ds_records" :label="__('domains.fields.ds_records')" :description="__('domains.fields.ds_records_help')" rows="3" class="font-mono" />
 
         <div class="flex gap-2">
-            <flux:button variant="primary" type="submit">{{ __('Save') }}</flux:button>
-            <flux:button :href="$domain ? route('domains.show', $domain) : route('domains.index')" wire:navigate>{{ __('Cancel') }}</flux:button>
+            <flux:button variant="primary" type="submit">{{ __('common.actions.save') }}</flux:button>
+            <flux:button :href="$domain ? route('domains.show', $domain) : route('domains.index')" wire:navigate>{{ __('common.actions.cancel') }}</flux:button>
         </div>
     </form>
 </section>

@@ -5,7 +5,7 @@ use Flux\Flux;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Domain')] class extends Component {
+new #[Title('domains.singular')] class extends Component {
     public Domain $domain;
 
     public function mount(Domain $domain): void
@@ -21,7 +21,7 @@ new #[Title('Domain')] class extends Component {
 
         $this->domain->delete();
 
-        Flux::toast(variant: 'success', text: __('Domain deleted.'));
+        Flux::toast(variant: 'success', text: __('domains.deleted'));
 
         $this->redirectRoute('domains.index', navigate: true);
     }
@@ -37,24 +37,24 @@ new #[Title('Domain')] class extends Component {
         </div>
 
         <div class="flex gap-2">
-            <flux:button icon="code-bracket" :href="route('rdap.domain', $domain->name)" target="_blank">RDAP</flux:button>
+            <flux:button icon="code-bracket" :href="route('rdap.domain', $domain->name)" target="_blank">{{ __('common.rdap') }}</flux:button>
             @can('update', $domain)
-                <flux:button variant="primary" icon="pencil" :href="route('domains.edit', $domain)" wire:navigate>{{ __('Edit') }}</flux:button>
+                <flux:button variant="primary" icon="pencil" :href="route('domains.edit', $domain)" wire:navigate>{{ __('common.actions.edit') }}</flux:button>
             @endcan
             @can('delete', $domain)
-                <flux:button variant="danger" icon="trash" wire:click="delete" wire:confirm="{{ __('Delete this domain?') }}">{{ __('Delete') }}</flux:button>
+                <flux:button variant="danger" icon="trash" wire:click="delete" wire:confirm="{{ __('domains.delete_confirm') }}">{{ __('common.actions.delete') }}</flux:button>
             @endcan
         </div>
     </div>
 
     <div class="grid gap-6 md:grid-cols-2">
         <flux:card class="space-y-2">
-            <flux:heading>{{ __('Registration') }}</flux:heading>
-            <flux:text>{{ __('TLD') }}: .{{ $domain->tld->displayName() }}</flux:text>
-            <flux:text>{{ __('Registrar') }}: {{ $domain->registrar?->name ?? __('None (managed by the registry)') }}</flux:text>
-            <flux:text>{{ __('Registered') }}: {{ $domain->registered_at?->toDateString() ?? '—' }}</flux:text>
-            <flux:text>{{ __('Expires') }}: {{ $domain->expires_at?->toDateString() ?? '—' }}</flux:text>
-            <flux:text>{{ __('Last update') }}: {{ $domain->updated_at?->toDateTimeString() }}</flux:text>
+            <flux:heading>{{ __('domains.show.registration') }}</flux:heading>
+            <flux:text>{{ __('tlds.singular') }}: .{{ $domain->tld->displayName() }}</flux:text>
+            <flux:text>{{ __('registrars.singular') }}: {{ $domain->registrar?->name ?? __('domains.managed_by_registry') }}</flux:text>
+            <flux:text>{{ __('domains.fields.registered') }}: {{ $domain->registered_at?->toDateString() ?? '—' }}</flux:text>
+            <flux:text>{{ __('domains.fields.expires') }}: {{ $domain->expires_at?->toDateString() ?? '—' }}</flux:text>
+            <flux:text>{{ __('domains.show.last_update') }}: {{ $domain->updated_at?->toDateTimeString() }}</flux:text>
             <div class="flex flex-wrap gap-1">
                 @forelse ($domain->statuses ?? [] as $status)
                     <flux:badge size="sm">{{ $status->value }}</flux:badge>
@@ -65,15 +65,15 @@ new #[Title('Domain')] class extends Component {
         </flux:card>
 
         <flux:card class="space-y-2">
-            <flux:heading>{{ __('Contacts') }}</flux:heading>
+            <flux:heading>{{ __('contacts.plural') }}</flux:heading>
             <flux:text>
-                {{ __('Registrant') }}:
+                {{ __('domains.fields.registrant') }}:
                 <flux:link :href="route('contacts.show', $domain->registrant)" wire:navigate>{{ $domain->registrant->handle }}</flux:link>
                 — {{ $domain->registrant->organization ?: $domain->registrant->name }}
             </flux:text>
             @foreach ($domain->contacts as $contact)
                 <flux:text>
-                    {{ ucfirst($contact->pivot->role) }}:
+                    {{ __('domains.roles.'.$contact->pivot->role) }}:
                     <flux:link :href="route('contacts.show', $contact)" wire:navigate>{{ $contact->handle }}</flux:link>
                     — {{ $contact->name }}
                 </flux:text>
@@ -81,7 +81,7 @@ new #[Title('Domain')] class extends Component {
         </flux:card>
 
         <flux:card class="space-y-2">
-            <flux:heading>{{ __('Nameservers') }}</flux:heading>
+            <flux:heading>{{ __('nameservers.plural') }}</flux:heading>
             @forelse ($domain->nameservers as $nameserver)
                 <flux:text>
                     {{ $nameserver->displayName() }}
@@ -90,16 +90,16 @@ new #[Title('Domain')] class extends Component {
                     @endif
                 </flux:text>
             @empty
-                <flux:text>{{ __('No nameservers.') }}</flux:text>
+                <flux:text>{{ __('domains.show.no_nameservers') }}</flux:text>
             @endforelse
         </flux:card>
 
         <flux:card class="space-y-2">
-            <flux:heading>{{ __('DNSSEC') }}</flux:heading>
+            <flux:heading>{{ __('domains.show.dnssec') }}</flux:heading>
             @forelse ($domain->dsRecords as $ds)
                 <flux:text class="font-mono break-all">{{ $ds->key_tag }} {{ $ds->algorithm }} {{ $ds->digest_type }} {{ $ds->digest }}</flux:text>
             @empty
-                <flux:text>{{ __('Unsigned delegation.') }}</flux:text>
+                <flux:text>{{ __('domains.show.unsigned') }}</flux:text>
             @endforelse
         </flux:card>
     </div>

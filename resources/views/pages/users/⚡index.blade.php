@@ -8,7 +8,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Users')] class extends Component {
+new #[Title('users.plural')] class extends Component {
     use WithPagination;
 
     #[Url]
@@ -36,21 +36,21 @@ new #[Title('Users')] class extends Component {
 
 <section class="w-full space-y-6">
     <div class="flex items-center justify-between gap-4">
-        <flux:heading size="xl" level="1">{{ __('Users') }}</flux:heading>
+        <flux:heading size="xl" level="1">{{ __('users.plural') }}</flux:heading>
 
         <flux:button variant="primary" icon="plus" :href="route('users.create')" wire:navigate>
-            {{ __('New user') }}
+            {{ __('users.new') }}
         </flux:button>
     </div>
 
-    <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass" :placeholder="__('Search users...')" />
+    <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass" :placeholder="__('users.search')" />
 
     <flux:table :paginate="$this->users">
         <flux:table.columns>
-            <flux:table.column>{{ __('Name') }}</flux:table.column>
-            <flux:table.column>{{ __('Email') }}</flux:table.column>
-            <flux:table.column>{{ __('Role') }}</flux:table.column>
-            <flux:table.column>{{ __('Registrar') }}</flux:table.column>
+            <flux:table.column>{{ __('common.fields.name') }}</flux:table.column>
+            <flux:table.column>{{ __('common.fields.email') }}</flux:table.column>
+            <flux:table.column>{{ __('users.fields.role') }}</flux:table.column>
+            <flux:table.column>{{ __('registrars.singular') }}</flux:table.column>
         </flux:table.columns>
 
         <flux:table.rows>
@@ -62,11 +62,11 @@ new #[Title('Users')] class extends Component {
                     <flux:table.cell>{{ $user->email }}</flux:table.cell>
                     <flux:table.cell>
                         @if ($user->isAdmin())
-                            <flux:badge size="sm" color="purple">{{ __('Registry admin') }}</flux:badge>
+                            <flux:badge size="sm" color="purple">{{ __('users.roles.admin') }}</flux:badge>
                         @elseif ($user->registrar_id)
-                            <flux:badge size="sm" color="blue">{{ __('Registrar operator') }}</flux:badge>
+                            <flux:badge size="sm" color="blue">{{ __('users.roles.operator') }}</flux:badge>
                         @else
-                            <flux:badge size="sm">{{ __('No access') }}</flux:badge>
+                            <flux:badge size="sm">{{ __('users.roles.none') }}</flux:badge>
                         @endif
                     </flux:table.cell>
                     <flux:table.cell>{{ $user->registrar?->name ?? '—' }}</flux:table.cell>

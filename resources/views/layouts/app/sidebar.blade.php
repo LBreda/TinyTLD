@@ -11,39 +11,39 @@
             </flux:sidebar.header>
 
             <flux:sidebar.nav>
-                <flux:sidebar.group :heading="__('Platform')" class="grid">
+                <flux:sidebar.group :heading="__('navigation.platform')" class="grid">
                     <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                        {{ __('Dashboard') }}
+                        {{ __('navigation.dashboard') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
 
-                <flux:sidebar.group :heading="__('Registry')" class="grid">
+                <flux:sidebar.group :heading="__('navigation.registry')" class="grid">
                     <flux:sidebar.item icon="globe-alt" :href="route('domains.index')" :current="request()->routeIs('domains.*')" wire:navigate>
-                        {{ __('Domains') }}
+                        {{ __('domains.plural') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="identification" :href="route('contacts.index')" :current="request()->routeIs('contacts.*')" wire:navigate>
-                        {{ __('Contacts') }}
+                        {{ __('contacts.plural') }}
                     </flux:sidebar.item>
                     @if (auth()->user()->registrar_id && ! auth()->user()->isAdmin())
                         <flux:sidebar.item icon="building-office" :href="route('registrars.mine')" :current="request()->routeIs('registrars.*')" wire:navigate>
-                            {{ __('My registrar') }}
+                            {{ __('navigation.my_registrar') }}
                         </flux:sidebar.item>
                     @endif
                 </flux:sidebar.group>
 
                 @can('admin')
-                    <flux:sidebar.group :heading="__('Administration')" class="grid">
+                    <flux:sidebar.group :heading="__('navigation.administration')" class="grid">
                         <flux:sidebar.item icon="building-office" :href="route('registrars.index')" :current="request()->routeIs('registrars.*')" wire:navigate>
-                            {{ __('Registrars') }}
+                            {{ __('registrars.plural') }}
                         </flux:sidebar.item>
                         <flux:sidebar.item icon="server-stack" :href="route('nameservers.index')" :current="request()->routeIs('nameservers.*')" wire:navigate>
-                            {{ __('Nameservers') }}
+                            {{ __('nameservers.plural') }}
                         </flux:sidebar.item>
                         <flux:sidebar.item icon="square-3-stack-3d" :href="route('tlds.index')" :current="request()->routeIs('tlds.*')" wire:navigate>
-                            {{ __('TLDs') }}
+                            {{ __('tlds.plural') }}
                         </flux:sidebar.item>
                         <flux:sidebar.item icon="users" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>
-                            {{ __('Users') }}
+                            {{ __('users.plural') }}
                         </flux:sidebar.item>
                     </flux:sidebar.group>
                 @endcan
@@ -53,7 +53,7 @@
 
             <flux:sidebar.nav>
                 <flux:sidebar.item icon="code-bracket" :href="route('rdap.help')" target="_blank">
-                    {{ __('RDAP') }}
+                    {{ __('common.rdap') }}
                 </flux:sidebar.item>
             </flux:sidebar.nav>
 
@@ -93,7 +93,7 @@
 
                     <flux:menu.radio.group>
                         <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
-                            {{ __('Settings') }}
+                            {{ __('settings.title') }}
                         </flux:menu.item>
                     </flux:menu.radio.group>
 
@@ -108,7 +108,7 @@
                             class="w-full cursor-pointer"
                             data-test="logout-button"
                         >
-                            {{ __('Log out') }}
+                            {{ __('auth.log_out') }}
                         </flux:menu.item>
                     </form>
                 </flux:menu>
